@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>计算器</title>
+    <link rel="stylesheet" href="css/index.css"/>
+    <script type="text/javascript" src="lib/vue.js"></script>
+    <script type="text/javascript" src="lib/vuex.js"></script>
+</head>
+<body>
+<div id="app">
+    <div id="result">{{result}}</div>
+    <div id="enter"><span v-show="this.$store.state.show">=</span>{{ enter==' '? 0 : enter}}</div>
+    <div class="keys">
+        <div  class="list">
+            <keyboard :id="item" class="key" v-for="(item,index ) in keys" :value="item" :key="index">{{item}}</keyboard>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    const store= new Vuex.Store({
+            state:{
+            show:false,
+           current:"",
+            result:" ", 
+            enter: " ",
+            remember:" "
+
+    },
+             mutations:{
+         calculator:function(state,value){
+            /* state.enter+=value;
+             console.log(isNaN(Number(state.enter[1])));*/
+                try{
+
+                    if(value==="="){
+                        state.show=true;
+                        state.current= state.result=eval(state.enter);
+                      state.remember=state.enter;
+                        state.enter=state.current;
+                        state.result= state.remember;
+
+
+                         /*state.current=state.result.slice(1);
+
+
+*/
+                    }
+                    else if(value==="clear"){
+                        state.result=state.enter=" ";
+                        state.show=false;
+
+                    }
+                    else{
+                        state.enter+=value;
+                    }
+                }
+                    catch( err ){
+                        state.show=false;
+
+                        alert("请检查您的输入！！");
+                    }
+
+
+
+
+
+
+    }
+        }
+
+    });
+    Vue.component('keyboard',{
+        props:['value','show'],
+        template:`<div   :class="{ changeColor:pink }" @mousedown="recover" @click="getKeyboardValue($event)" :data-value="value">{{value}}</div>`,
+         data:function(){
+             return {
+                 pink:false
+             }
+         },
+        methods:{
+            getKeyboardValue:function(event){
+                let me=event.target;
+                let value=me.dataset.value;
+                this.$store.commit('calculator',value);
+                this.pink=!this.pink;
+            },
+            recover: function (){
+        this.pink=!this.pink;
+    }
+        }
+    });
+    var vm=new Vue({
+        el:'#app',
+        store:store,
+        data:{
+            keys:['clear','+','-','*',
+                    '7','8','9','/','4',
+            '5','6','0','1','2','3','=']
+        },
+        computed:{
+            result:function(){
+        return this.$store.state.result
+    },
+            enter:function(){
+                return this.$store.state.enter
+
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
